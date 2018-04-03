@@ -6,6 +6,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 
@@ -19,38 +25,67 @@ public class IgvRunner implements BamVisualizer {
     public IgvRunner(int socketNumber){
         this.socketNumber = socketNumber;
     }
-    
-    public IgvRunner(){
-        this.socketNumber = 60151;
+
+    public IgvRunner(){}
+
+    protected Map<String, String> processConfigureFile(String filePath){
+        Map<String, String> properties = new HashMap<>();
+        try(Stream<String> lines =  Files.lines(Paths.get(filePath))){
+            properties = lines.collect(Collectors.toMap(s -> s.split(":")[0], s-> s.split(":")[1] ));
+        } catch (IOException e){
+            throw new GenomicRequestException(e);
+        }
+        if(socketNumber == 0){
+            socketNumber = Integer.parseInt(properties.get("socket_number"));
+        }
+        return properties;
     }
 
     @Override
-    public void init() throws IOException, UnknownHostException{
-        socket = new Socket("127.0.0.1", socketNumber);
-        input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        output = new PrintWriter(socket.getOutputStream(), true);
-        output.println("snapshotDirectory /Users/gabow/work/variant_review/screenshots");
-        String response = input.readLine();
-        DEV_LOGGER.info(response);
+    public void init() {
+        Map<String, String> properties = processConfigureFile("configure.properties");
+        try {
+            socket = new Socket("127.0.0.1", socketNumber);
+            input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            output = new PrintWriter(socket.getOutputStream(), true);
+            output.println("snapshotDirectory " + properties.get("snapshot_directory"));
+            String response = input.readLine();
+            DEV_LOGGER.info(response);
+        } catch (IOException e){
+            DEV_LOGGER.info("Failed to initialize IgvRunner");
+            throw new GenomicRequestException(e);
+        }
     }
 
     @Override
-    public String loadGenome(String genomePath) throws IOException{
-        output.println("genome " + genomePath);
-        String response = input.readLine();
-        DEV_LOGGER.info(response);
+    public String loadGenome(String genomePath){
+        String response = "";
+        try {
+            output.println("genome " + genomePath);
+            response = input.readLine();
+            DEV_LOGGER.info(response);
+        } catch (IOException e){
+            DEV_LOGGER.info("Could not load the genome at " + genomePath );
+            throw new GenomicRequestException(e);
+        }
         return response;
     }
 
     @Override
-    public String loadFile(String filePath) throws IOException{
-        output.println("load " + filePath);
-        String response = input.readLine();
-        DEV_LOGGER.info(response);
+    public String loadFile(String filePath) {
+        String response = "";
+        try {
+            output.println("load " + filePath);
+            response = input.readLine();
+            DEV_LOGGER.info(response);
+        } catch (IOException e){
+            DEV_LOGGER.info("Count not load file at " + filePath);
+            throw new GenomicRequestException(e);
+        }
         return response;
     }
 
-    String buildGoto(Chrome chr, final long regionStart, final long regionEnd) throws GenomicRequestException{
+    String buildGoto(Chrome chr, final long regionStart, final long regionEnd) {
         if(regionStart > regionEnd){
             throw new GenomicRequestException("Region start is greater than the region end");
         }
@@ -60,18 +95,30 @@ public class IgvRunner implements BamVisualizer {
     }
     
     @Override
-    public String gotoRegion(Chrome chr, final long regionStart, final long regionEnd) throws IOException, GenomicRequestException{
-        output.println(buildGoto(chr, regionStart, regionEnd));
-        String response = input.readLine();
-        DEV_LOGGER.info(response);
+    public String gotoRegion(Chrome chr, final long regionStart, final long regionEnd){
+        String response = "";
+        try {
+            output.println(buildGoto(chr, regionStart, regionEnd));
+            response = input.readLine();
+            DEV_LOGGER.info(response);
+        } catch (IOException e){
+            DEV_LOGGER.info("Failure in going to region: " + chr.toString() + ":" + Long.toString(regionStart));
+            throw new GenomicRequestException(e);
+        }
         return response;
     }
 
     @Override
-    public String savePicture() throws IOException{
-        output.println("snapshot");
-        String response = input.readLine();
-        DEV_LOGGER.info(response);
+    public String savePicture() {
+        String response = "";
+        try {
+            output.println("snapshot");
+            response = input.readLine();
+            DEV_LOGGER.info(response);
+        } catch (IOException e){
+            DEV_LOGGER.info("Failed to save picture");
+            throw new GenomicRequestException(e);
+        }
         return response;
     }
 

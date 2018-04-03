@@ -1,7 +1,11 @@
 package org.mskcc.data.builder;
 
+import jdk.internal.jline.internal.TestAccessible;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,5 +27,11 @@ public class IgvRunnerTest{
         assertThat(runner.buildGoto(c, start, end).equals("chrX:1000-2000"));
     }
 
+    @Test
+    public void whenPropertiesProvided_shouldHaveKeys(){
+        Map<String, String > props = runner.processConfigureFile("configure.properties");
+        assertThat(props.get("socket_number").equals("60151"));
+        assertThat(props.get("snapshot_directory").equals("~/snapshots"));
+    }
 
 }
