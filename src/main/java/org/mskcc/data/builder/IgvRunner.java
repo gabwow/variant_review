@@ -13,14 +13,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 
 public class IgvRunner implements BamVisualizer {
     int socketNumber;
     Socket socket;
     BufferedReader input;
     PrintWriter output;
-    private static final Logger DEV_LOGGER = Logger.getLogger("devLogger");
+    private static final Logger LOGGER = LogManager.getLogger(IgvRunner.class);
     
     public IgvRunner(int socketNumber){
         this.socketNumber = socketNumber;
@@ -50,9 +52,9 @@ public class IgvRunner implements BamVisualizer {
             output = new PrintWriter(socket.getOutputStream(), true);
             output.println("snapshotDirectory " + properties.get("snapshot_directory"));
             String response = input.readLine();
-            DEV_LOGGER.info(response);
+            LOGGER.info(response);
         } catch (IOException e){
-            DEV_LOGGER.info("Failed to initialize IgvRunner");
+            LOGGER.info("Failed to initialize IgvRunner");
             throw new GenomicRequestException(e);
         }
     }
@@ -63,9 +65,9 @@ public class IgvRunner implements BamVisualizer {
         try {
             output.println("genome " + genomePath);
             response = input.readLine();
-            DEV_LOGGER.info(response);
+            LOGGER.info(response);
         } catch (IOException e){
-            DEV_LOGGER.info("Could not load the genome at " + genomePath );
+            LOGGER.info("Could not load the genome at " + genomePath );
             throw new GenomicRequestException(e);
         }
         return response;
@@ -77,9 +79,9 @@ public class IgvRunner implements BamVisualizer {
         try {
             output.println("load " + filePath);
             response = input.readLine();
-            DEV_LOGGER.info(response);
+            LOGGER.info(response);
         } catch (IOException e){
-            DEV_LOGGER.info("Count not load file at " + filePath);
+            LOGGER.info("Count not load file at " + filePath);
             throw new GenomicRequestException(e);
         }
         return response;
@@ -100,9 +102,9 @@ public class IgvRunner implements BamVisualizer {
         try {
             output.println(buildGoto(chr, regionStart, regionEnd));
             response = input.readLine();
-            DEV_LOGGER.info(response);
+            LOGGER.info(response);
         } catch (IOException e){
-            DEV_LOGGER.info("Failure in going to region: " + chr.toString() + ":" + Long.toString(regionStart));
+            LOGGER.info("Failure in going to region: " + chr.toString() + ":" + Long.toString(regionStart));
             throw new GenomicRequestException(e);
         }
         return response;
@@ -114,9 +116,9 @@ public class IgvRunner implements BamVisualizer {
         try {
             output.println("snapshot");
             response = input.readLine();
-            DEV_LOGGER.info(response);
+            LOGGER.info(response);
         } catch (IOException e){
-            DEV_LOGGER.info("Failed to save picture");
+            LOGGER.info("Failed to save picture");
             throw new GenomicRequestException(e);
         }
         return response;
