@@ -1,7 +1,5 @@
 package org.mskcc.data.builder;
 
-import java.io.BufferedReader;
-
 public class MafConsumer implements VariantProvider {
     private MafReader reader;
 
@@ -11,16 +9,16 @@ public class MafConsumer implements VariantProvider {
 
     @Override
     public Variant getNextVariant() {
-        Variant variantInLine = new Variant();
+        Variant variantInRow = new Variant();
         if(!reader.isReady()) {
-            return variantInLine;
+            return variantInRow;
         }
-        variantInLine.alt(reader.getAlt()).ref(reader.getRef()).
+        variantInRow.alt(reader.getAlt()).ref(reader.getRef()).
                 decision(reader.getDecision()).chr(reader.getChr()).
-                regionStart(reader.getStart()).regionEnd(reader.getEnd()).
+                regionStart(reader.getZeroBasedStart()).regionEnd(reader.getZeroBasedExclusiveEnd()).
                 tumorSample(reader.getTumor()).normalSample(reader.getNormal());
         reader.loadNext();
-        return variantInLine;
+        return variantInRow;
     }
 
 }

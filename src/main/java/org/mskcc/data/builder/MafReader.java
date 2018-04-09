@@ -8,7 +8,7 @@ public interface MafReader {
     public String getTumor();
     public String getNormal();
     public boolean isReady();
-    public long getStart();
-    public long getEnd();
+    public long getZeroBasedStart();
+    public long getZeroBasedExclusiveEnd();
     public void loadNext();
 }

@@ -59,10 +59,14 @@ public class ImageProcess {
             return height;
         }
 
-        protected Point getPosition(int x, int y){
-            return layoutPositions.get(x).get(y);
+        protected Point getPosition(int x, int y) {
+            try {
+                return layoutPositions.get(x).get(y);
+            } catch (IndexOutOfBoundsException e) {
+                throw new GenomicRequestException("The cell is out of bounds for index " +
+                        String.valueOf(x) + ", " + String.valueOf(y));
+            }
         }
-
     }
 
     private static final Logger LOGGER = LogManager.getLogger(ImageProcess.class);
@@ -103,7 +107,6 @@ public class ImageProcess {
                 currentY += currentSize.getY();
             }
             layedOutImage.addColumn(imageAnchors);
-            System.out.println(layedOutImage.getWidth());
             imageAnchors = new ArrayList<>();
             currentY = 0;
             currentX += imageColumnsByWidth.get(columnIndex).get(0).getX();
@@ -144,7 +147,9 @@ public class ImageProcess {
 
     public static void main(String[] args){
         ImageProcess ip = new ImageProcess();
-        ip.saveImage(ip.composeImage("GoodDogge1.jpg", "GoodDogge2.jpg"),
+
+        ip.saveImage(ip.composeImage("testData/GoodDogge1.jpg", "testData/GoodDogge2.jpg",
+                "testData/GoodDogge3.jpg", "testData/GoodDogge4.jpg"),
                 "AllGoodDogs.jpg");
     }
 }

@@ -33,4 +33,44 @@ public class ImageProcessTest {
 
     }
 
+    @Test
+    public void whenNoMatchWidths_thenAllColumnsLengthOne(){
+        //given 4 points with no matching widths
+        List<ImageProcess.Point> points = new LinkedList<>();
+        points.add( new ImageProcess.Point(5, 20, "c3"));
+        points.add( new ImageProcess.Point(1, 20, "c0"));
+        points.add( new ImageProcess.Point(2, 20, "c1"));
+        points.add( new ImageProcess.Point(4, 20, "c2"));
+
+        //when layout generated
+        ImageProcess.Layout layout = imager.buildLayout(points);
+
+        //then 4 columns with length 1
+        assertThat(layout.getPosition(3, 0).id).isEqualTo("c3");
+        assertThatThrownBy(() -> layout.getPosition(4, 0)).isInstanceOf(GenomicRequestException.class)
+                .hasMessageContaining("cell is out of bounds for index");
+        assertThatThrownBy(() -> layout.getPosition(1, 1)).isInstanceOf(GenomicRequestException.class)
+                .hasMessageContaining("cell is out of bounds for index");
+
+    }
+
+    @Test
+    public void whenLayoutFourWidths_thenOrderedByIncreasingWidth(){
+        //given 4 points with no matching widths
+        List<ImageProcess.Point> points = new LinkedList<>();
+        points.add( new ImageProcess.Point(6, 20, "c3"));
+        points.add( new ImageProcess.Point(1, 20, "c0"));
+        points.add( new ImageProcess.Point(5, 20, "c2"));
+        points.add( new ImageProcess.Point(2, 20, "c1"));
+        //when layout generated
+        ImageProcess.Layout layout = imager.buildLayout(points);
+
+        //then columns are ordered by increasing width
+        assertThat(layout.getPosition(0, 0).getX()).isEqualTo(0);
+        assertThat(layout.getPosition(1, 0).getX()).isEqualTo(1);
+        assertThat(layout.getPosition(2, 0).getX()).isEqualTo(3);
+        assertThat(layout.getPosition(3, 0).getX()).isEqualTo(8);
+    }
+
+
 }

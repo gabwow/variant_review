@@ -54,7 +54,7 @@ public class MafReaderStub implements MafReader {
     }
 
     @Override
-    public long getStart(){
+    public long getZeroBasedStart(){
         if(index < 1){
             return 10000;
         }
@@ -62,7 +62,7 @@ public class MafReaderStub implements MafReader {
     }
 
     @Override
-    public long getEnd(){
+    public long getZeroBasedExclusiveEnd(){
         if(index < 1){
             return 10001;
         }

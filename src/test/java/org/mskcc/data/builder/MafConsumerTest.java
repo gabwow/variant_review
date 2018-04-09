@@ -13,7 +13,7 @@ public class MafConsumerTest {
 
 
     @Test
-    public void buildsVarients_fromLine(){
+    public void buildsVariants_fromLine(){
         //given active reader
         MafReader reader = new MafReaderStub();
         consumer = new MafConsumer();
@@ -28,6 +28,9 @@ public class MafConsumerTest {
         assertThat(variant.getTumorSample()).isEqualTo("NOT_BAD_TUMOR");
         assertThat(variant.getChr()).isEqualTo(Chrome.CHR7);
         assertThat(variant.getDecision()).isEqualTo(CallDecision.APPROVED);
+        assertThat(variant.getRegionStart()).isEqualTo(10000);
+        assertThat(variant.getRegionEnd()).isEqualTo(10001);
+
 
     }
 
