@@ -56,7 +56,6 @@ public class Variant {
         return chr;
     }
 
-
     public long getRegionStart() {
         return regionStart;
     }

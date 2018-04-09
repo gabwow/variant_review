@@ -12,6 +12,11 @@
 
 # Ignore pictures generated
 /screenshots/
+*.jpg
+*.png
+
+# For now ignore the integration test data
+/testData/
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
  Package Files #

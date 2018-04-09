@@ -25,7 +25,8 @@ public enum Chrome {
     CHR22("chr22"),
     CHRX("chrX"),
     CHRY("chrY"),
-    CHRM("chrM");
+    CHRM("chrM"),
+    CHRFAIL("CHR_ERROR");
 
      private String value;
     Chrome(String value){
@@ -35,6 +36,15 @@ public enum Chrome {
     @Override
     public String toString(){
         return value;
+    }
+
+    public static Chrome fromString(String word){
+        for(Chrome c : Chrome.values()){
+            if(word.equals(c.toString())){
+                return c;
+            }
+        }
+        return CHRFAIL;
     }
 
 }

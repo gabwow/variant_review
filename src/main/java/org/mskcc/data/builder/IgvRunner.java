@@ -18,10 +18,10 @@ import org.apache.logging.log4j.LogManager;
 
 
 public class IgvRunner implements BamVisualizer {
-    int socketNumber;
-    Socket socket;
-    BufferedReader input;
-    PrintWriter output;
+    private int socketNumber;
+    private Socket socket;
+    private BufferedReader input;
+    private PrintWriter output;
     private static final Logger LOGGER = LogManager.getLogger(IgvRunner.class);
     
     public IgvRunner(int socketNumber){
@@ -87,24 +87,24 @@ public class IgvRunner implements BamVisualizer {
         return response;
     }
 
-    String buildGoto(Chrome chr, final long regionStart, final long regionEnd) {
-        if(regionStart > regionEnd){
+    String buildGoto(Chrome chr, final long zeroBasedRegionStart, final long zeroBasedExclusiveEnd) {
+        if(zeroBasedRegionStart > zeroBasedExclusiveEnd){
             throw new GenomicRequestException("Region start is greater than the region end");
         }
         StringBuilder sb = new StringBuilder();
-        sb.append("goto ").append(chr).append(":").append(regionStart).append("-").append(regionEnd);
+        sb.append("goto ").append(chr).append(":").append(zeroBasedRegionStart).append("-").append(zeroBasedExclusiveEnd);
         return sb.toString();
     }
     
     @Override
-    public String gotoRegion(Chrome chr, final long regionStart, final long regionEnd){
+    public String gotoRegion(Chrome chr, final long zeroBasedRegionStart, final long zeroBasedExclusiveEnd){
         String response = "";
         try {
-            output.println(buildGoto(chr, regionStart, regionEnd));
+            output.println(buildGoto(chr, zeroBasedRegionStart, zeroBasedExclusiveEnd));
             response = input.readLine();
             LOGGER.info(response);
         } catch (IOException e){
-            LOGGER.info("Failure in going to region: " + chr.toString() + ":" + Long.toString(regionStart));
+            LOGGER.info("Failure in going to region: " + chr.toString() + ":" + Long.toString(zeroBasedRegionStart));
             throw new GenomicRequestException(e);
         }
         return response;
