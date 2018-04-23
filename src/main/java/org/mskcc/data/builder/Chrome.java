@@ -1,5 +1,8 @@
 package org.mskcc.data.builder;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum Chrome {
     CHR1("chr1"),
     CHR2("chr2"),
@@ -27,8 +30,15 @@ public enum Chrome {
     CHRY("chrY"),
     CHRM("chrM"),
     CHRFAIL("CHR_ERROR");
+    private static final Map<String, Chrome> valueToEnum = new HashMap<>();
+    static {
+        for (Chrome c : Chrome.values()) {
+            valueToEnum.put(c.value, c);
+        }
+    }
 
-     private String value;
+
+    private String value;
     Chrome(String value){
         this.value = value;
     }
@@ -39,12 +49,10 @@ public enum Chrome {
     }
 
     public static Chrome fromString(String word){
-        for(Chrome c : Chrome.values()){
-            if(word.equals(c.toString())){
-                return c;
-            }
+        if(!valueToEnum.containsKey(word)){
+            throw new GenomicRequestException(word + " isn't a valid chromosome");
         }
-        return CHRFAIL;
+        return valueToEnum.get(word);
     }
 
 }
