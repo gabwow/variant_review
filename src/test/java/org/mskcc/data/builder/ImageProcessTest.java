@@ -72,5 +72,33 @@ public class ImageProcessTest {
         assertThat(layout.getPosition(3, 0).getX()).isEqualTo(8);
     }
 
+    @Test
+    public void oneColumnBalanceOptimal(){
+        ImageProcess.Point columnNumber = imager.squareColumnOfIdenticalShapes(10, 1, 10);
+        assertThat(columnNumber.getX()).isEqualTo(1);
+
+    }
+
+    @Test
+    public void twoColumnBalanceOptimal(){
+        ImageProcess.Point columnNumber = imager.squareColumnOfIdenticalShapes(10, 10, 4);
+        assertThat(columnNumber.getX()).isEqualTo(2);
+    }
+
+    @Test
+    public void threeColumnBalanceOptimal(){
+        ImageProcess.Point columnNumber = imager.squareColumnOfIdenticalShapes(3, 3, 9);
+        assertThat(columnNumber.getX()).isEqualTo(3);
+    }
+
+    @Test
+    public void whenOptimalBalanceChanges_thenRebalanceOccurs(){
+        ImageProcess.Point columnNumber = imager.squareColumnOfIdenticalShapes(8, 2, 5);
+        assertThat(columnNumber.getX()).isEqualTo(1);
+        columnNumber = imager.squareColumnOfIdenticalShapes(8, 2, 6);
+        assertThat(columnNumber.getX()).isEqualTo(2);
+    }
+
+
 
 }

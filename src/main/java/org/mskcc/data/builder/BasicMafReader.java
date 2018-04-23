@@ -41,10 +41,7 @@ public class BasicMafReader implements MafReader {
     }
 
     private boolean statusFailed(String status){
-        if(status.startsWith("somatic_")){
-            return true;
-        }
-        return false;
+        return  (status.startsWith("somatic_"));
     }
 
     @Override
@@ -91,14 +88,12 @@ public class BasicMafReader implements MafReader {
 
     @Override
     public long getZeroBasedStart() {
-        long startPos = Integer.parseInt(values.get(headerToIndex.get("Start_Position"))) - 1;
-        return startPos;
+        return   Long.parseLong(values.get(headerToIndex.get("Start_Position"))) - 1;
     }
 
     @Override
     public long getZeroBasedExclusiveEnd() {
-        long endPos = Integer.parseInt(values.get(headerToIndex.get("End_Position")));
-        return  endPos;
+        return  Long.parseLong(values.get(headerToIndex.get("End_Position")));
     }
     @Override
     public void loadNext() {

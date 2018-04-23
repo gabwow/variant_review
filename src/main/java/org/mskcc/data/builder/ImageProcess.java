@@ -81,6 +81,43 @@ public class ImageProcess {
         }
     }
 
+    protected Point squareColumnOfIdenticalShapes(int x, int y, int count){
+        if(count < 2){
+            return new Point(1, count);
+        }
+        List<Integer> itemsInColumn = new ArrayList<>();
+        for(int i = 0; i <= count; i++){
+            itemsInColumn.add(0);
+        }
+        int columnNumber = 1;
+        int maxHeight = 1;
+        itemsInColumn.set(0, 1);
+        for(int i = 1; i <= count; i++){
+            int minColumn = 0;
+            int potentialHeight = maxHeight;
+            for(int j = 0; j < columnNumber; j++) {
+                if(itemsInColumn.get(j) <= itemsInColumn.get(minColumn) ) {
+                    minColumn = j;
+                }
+            }
+            if(itemsInColumn.get(minColumn) + 1 > maxHeight){
+                potentialHeight = itemsInColumn.get(minColumn) +1  ;
+            }
+            double balanceScoreWithColumnAdd = (double) (x  * (columnNumber + 1))/ (y * maxHeight);
+            balanceScoreWithColumnAdd = Math.max(balanceScoreWithColumnAdd, 1/balanceScoreWithColumnAdd);
+            double balanceScoreWithRowAdd = (double) (x  * (columnNumber))/ (y * potentialHeight);
+            balanceScoreWithRowAdd =  Math.max(balanceScoreWithRowAdd, 1/balanceScoreWithRowAdd);
+            if(balanceScoreWithColumnAdd < balanceScoreWithRowAdd){
+                itemsInColumn.set(columnNumber, 1);
+                columnNumber++;
+            } else{
+                itemsInColumn.set(minColumn, itemsInColumn.get(minColumn) + 1);
+                maxHeight = potentialHeight;
+            }
+        }
+        return new Point(columnNumber, maxHeight);
+    }
+
     protected Layout buildLayout(List<Point> imageSizes) {
         Map<Integer, List<Point>>  imageColumnsByWidth = new HashMap<>();
         int layoutWidth = 0;
@@ -91,15 +128,37 @@ public class ImageProcess {
                 layoutWidth += imageSize.getX();
                 columnHeights.put(imageSize.getX(), 0);
             }
-
             imageColumnsByWidth.get(imageSize.getX()).add(imageSize);
             columnHeights.computeIfPresent(imageSize.getX(), (k, v) -> v + imageSize.getY());
         }
-        Layout layedOutImage = new Layout(layoutWidth, Collections.max(columnHeights.values()));
+
         List<Integer> sortedWidths = new ArrayList<>(imageColumnsByWidth.keySet());
         Collections.sort(sortedWidths);
+        if(sortedWidths.size() == 1) {
+            Point dims =  squareColumnOfIdenticalShapes ( imageSizes.get(0).getX(),
+                            imageSizes.get(0).getY(), imageSizes.size());
+            int squaredCols = dims.getX();
+            int squaredHeight = dims.getY();
+            layoutWidth = squaredCols * imageSizes.get(0).getX();
+            columnHeights = new HashMap<>();
+            columnHeights.put(0, squaredHeight *  imageSizes.get(0).getY());
+            sortedWidths = new ArrayList<>();
+            imageColumnsByWidth = new HashMap<>();
+            int key = 0;
+            sortedWidths.add(key);
+            imageColumnsByWidth.put(key, new ArrayList<Point>());
+            for(Point image : imageSizes){
+                if(imageColumnsByWidth.get(key).size() == squaredHeight){
+                    key++;
+                    sortedWidths.add(key);
+                    imageColumnsByWidth.put(key, new ArrayList<Point>());
+                }
+                imageColumnsByWidth.get(key).add(image);
+            }
+        }
         int currentX = 0;
         int currentY = 0;
+        Layout layedOutImage = new Layout(layoutWidth, Collections.max(columnHeights.values()));
         List<Point> imageAnchors = new ArrayList<>();
         for(Integer columnIndex : sortedWidths){
             for(Point currentSize : imageColumnsByWidth.get(columnIndex)){
@@ -115,7 +174,6 @@ public class ImageProcess {
     }
 
     public BufferedImage composeImage(String... imageFilePaths){
-        List<BufferedImage> images = new LinkedList<>();
         List<Point> imageSizes = new ArrayList<>();
         Map<String, BufferedImage> fileIdToImage = new HashMap<>();
         for(String path : imageFilePaths) {
@@ -148,8 +206,9 @@ public class ImageProcess {
     public static void main(String[] args){
         ImageProcess ip = new ImageProcess();
 
-        ip.saveImage(ip.composeImage("testData/GoodDogge1.jpg", "testData/GoodDogge2.jpg",
-                "testData/GoodDogge3.jpg", "testData/GoodDogge4.jpg"),
+        ip.saveImage(ip.composeImage("testData/GoodDogge2.jpg",
+                "testData/GoodDogge3.jpg", "testData/GoodDogge4.jpg",
+                "testData/GoodDogge6.jpg", "testData/GoodDogge7.jpg"),
                 "AllGoodDogs.jpg");
     }
 }
